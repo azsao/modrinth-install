@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -54,5 +55,37 @@ func main() {
 	}
 
 	fmt.Println("File moved to Modrinth directory successfully")
+
+// create symlink to make it accessible to application launchers
+
+	symlinkPath := filepath.Join(downloadDir, "modrinth-app.AppImage")
+	err = os.Symlink(fileName, symlinkPath)
+	if err != nil {
+		fmt.Println("Error creating symlink:", err)
+		return
+	}
+
+	fmt.Println("Symlink created successfully")
+
+	// Setting PATH env variable to include the modrinth directory
+		modrinthDir := filepath.Join(os.Getenv("HOME"), "Modrinth")
+	err = os.Setenv("PATH", modrinthDir+":"+os.Getenv("PATH"))
+	if err != nil {
+		fmt.Println("Error setting PATH:", err)
+		return
+	}
+
+	fmt. Println("Modrinth directory sucessfully adeed to PATH")
+
+// update the .bashrc file
+
+cmd := exec.Command("source", "$HOME/.bashrc")
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println("Error sourcing .bashrc:", err)
+		return
+	}
+
+	fmt.Println("bashrc updated sucessfully")
 }
 
